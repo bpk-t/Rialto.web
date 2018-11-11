@@ -68,23 +68,3 @@ class Main {
 		app.listen(serverPort);
 	}
 }
-
-class RegisterImage {
-
-	public var id:Int;
-	public var file_size:Int;
-	public var file_name:String;
-	public var file_extension:String;
-	public var file_path:String;
-	public var md5_hash:String;
-	public var ave_hash:String;
-	public var image_repository_id:Int;
-	public var height_pix:Int;
-	public var width_pix:Int;
-	public var do_get:Int;
-	public var delete_timestamp:String;
-	public var created_at:String;
-	public var updated_at:String;
-
-	public function new(){}
-}
