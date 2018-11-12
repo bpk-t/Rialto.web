@@ -1,5 +1,6 @@
 package api;
 
+import js.node.Fs;
 import lib.Sequelize;
 import haxe.ds.Option;
 
@@ -9,23 +10,28 @@ class GetImageFullApi implements Api<Request> {
     this.seq = seq;
   }
   public function run(req: Request):js.Promise<ApiResponse> {
-    // TODO DBから値を取得
-    // TODO ファイルから読み取り
-
-    seq.query('select * from register_image where id = :id'
+    return seq.query('select * from register_image where id = :id'
             , { replacements: { id: req.imageId } })
        .then(function(result:Dynamic) {
 				var str = haxe.Json.stringify(result);
 				trace('result = $str');
 
+        // TODO path
 				var fullPath = "Z:\\rialto\\imgs\\" + result[0][0].file_path;
-				//ctx.type = "image/jpg";
-				//ctx.body = Fs.createReadStream(fullPath);
+        return new ApiResponse(Fs.createReadStream(fullPath), getType(), 200);
 			});
-    return null;
   }
   public function convert(source:ApiRequest):Option<Request> {
-    return null;
+    var id = source.pathParamaters.get("id");
+    if (id == null) {
+      return None;
+    } else {
+      return Some(new Request(Std.parseInt(id));
+    }
+  }
+  private function getType():String {
+    // TODO 
+    return "image/jpg";
   }
 }
 
