@@ -6,6 +6,8 @@ import lib.koa_router.KoaRouterContext;
 import js.Node;
 import js.node.Fs;
 
+import api.GetImageFullApi;
+
 class Main {
 	static function main() {
 		var serverPort = 8080;
@@ -28,6 +30,16 @@ class Main {
 		.get("/image/full/:id", function(ctx:Context, next){
 			var ctx2:KoaRouterContext = cast ctx;
 			var seq = new lib.Sequelize("", "", "", { dialect:'sqlite', storage:'C:\\personal\\dev\\repo\\Rialto\\Rialto\\bin\\Debug\\imgdb.db' });
+
+			var apiClient = new GetImageFullApi(seq);
+			var request = new api.ApiRequest(None, new Map<String, String>(), ["id" => ctx2.params.id]);
+			
+			switch (apiClient.convert(request)) {
+				case Some(r):
+					apiClient.run(r);
+				case None:
+					// TODO return 400
+			}
 
 			return seq.query('select * from register_image where id = :id', { replacements: { id: ctx2.params.id } }).then(function(result:Dynamic) {
 				var str = haxe.Json.stringify(result);

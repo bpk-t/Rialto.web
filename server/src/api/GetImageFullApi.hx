@@ -26,7 +26,7 @@ class GetImageFullApi implements Api<Request> {
     if (id == null) {
       return None;
     } else {
-      return Some(new Request(Std.parseInt(id));
+      return Some(new Request(Std.parseInt(id)));
     }
   }
   private function getType():String {
