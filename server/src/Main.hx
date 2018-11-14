@@ -5,7 +5,9 @@ import lib.koa_bodyparser.KoaBodyParserRequest;
 import lib.koa_router.KoaRouterContext;
 import js.Node;
 import js.node.Fs;
+import js.Promise;
 
+import api.ApiResponse;
 import api.GetImageFullApi;
 
 class Main {
@@ -33,22 +35,22 @@ class Main {
 
 			var apiClient = new GetImageFullApi(seq);
 			var request = new api.ApiRequest(None, new Map<String, String>(), ["id" => ctx2.params.id]);
-			
+
+			// TODO キレイにする		
 			switch (apiClient.convert(request)) {
 				case Some(r):
-					apiClient.run(r);
+					return apiClient.run(r).then(function(x:ApiResponse) {
+						ctx.body = x.body;
+						ctx.type = x.type;
+						ctx.status = x.status;
+					});
 				case None:
-					// TODO return 400
+					return new Promise(function(resolve:Dynamic->Void, reject) {
+						ctx.body = "bad param";
+						ctx.status = 400;
+						resolve(null);
+					});
 			}
-
-			return seq.query('select * from register_image where id = :id', { replacements: { id: ctx2.params.id } }).then(function(result:Dynamic) {
-				var str = haxe.Json.stringify(result);
-				trace('result = $str');
-
-				var fullPath = "Z:\\rialto\\imgs\\" + result[0][0].file_path;
-				ctx.type = "image/jpg";
-				ctx.body = Fs.createReadStream(fullPath);
-			});
 		})
 		.get("/image/thumbnail/:id", function(ctx:Context, next){
 
