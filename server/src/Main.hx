@@ -32,25 +32,9 @@ class Main {
 		.get("/image/full/:id", function(ctx:Context, next){
 			var ctx2:KoaRouterContext = cast ctx;
 			var seq = new lib.Sequelize("", "", "", { dialect:'sqlite', storage:'C:\\personal\\dev\\repo\\Rialto\\Rialto\\bin\\Debug\\imgdb.db' });
-
-			var apiClient = new GetImageFullApi(seq);
 			var request = new api.ApiRequest(None, new Map<String, String>(), ["id" => ctx2.params.id]);
 
-			// TODO キレイにする		
-			switch (apiClient.convert(request)) {
-				case Some(r):
-					return apiClient.run(r).then(function(x:ApiResponse) {
-						ctx.body = x.body;
-						ctx.type = x.type;
-						ctx.status = x.status;
-					});
-				case None:
-					return new Promise(function(resolve:Dynamic->Void, reject) {
-						ctx.body = "bad param";
-						ctx.status = 400;
-						resolve(null);
-					});
-			}
+			return runApi(new GetImageFullApi(seq), request, ctx);
 		})
 		.get("/image/thumbnail/:id", function(ctx:Context, next){
 
@@ -80,5 +64,22 @@ class Main {
 		app.use(router.routes());
 		app.use(router.allowedMethods());
 		app.listen(serverPort);
+	}
+	private static function runApi<T>(apiClient:api.Api<T>, request:api.ApiRequest, ctx:Context):Promise<Void> {
+		switch (apiClient.convert(request)) {
+			case Some(r):
+				return apiClient.run(r).then(function(x:ApiResponse) {
+					ctx.body = x.body;
+					ctx.type = x.type;
+					ctx.status = x.status;
+				});
+			case None:
+				return new Promise(function(resolve:Dynamic->Void, reject) {
+					// TODO response body
+					ctx.body = "bad param";
+					ctx.status = 400;
+					resolve(null);
+				});
+		}
 	}
 }
