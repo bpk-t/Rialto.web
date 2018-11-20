@@ -9,6 +9,7 @@ import js.Promise;
 
 import api.ApiResponse;
 import api.GetImageFullApi;
+import haxe.Json;
 
 class Main {
 	static function main() {
@@ -17,23 +18,16 @@ class Main {
 		var app = new Koa();
 		var router = new KoaRouter();
 		var bodyParser = Node.require("koa-bodyparser");
+		var seq = new lib.Sequelize("", "", "", { dialect:'sqlite', storage:'C:\\personal\\dev\\repo\\Rialto\\Rialto\\bin\\Debug\\imgdb.db' });
 
-		router.get('/', function (ctx: Context, next) {
-			var path = "C:\\personal\\dev\\repo\\Rialto.web\\server\\build\\img.jpg";
-			trace('exists=${Fs.existsSync(path)}');
-			ctx.type = "image/jpg";
-			ctx.body = Fs.createReadStream(path);
-		})
-		.post("/post", function(ctx, next) {
+		router.post("/post", function(ctx, next) {
 			var req: KoaBodyParserRequest = cast ctx.request;
 			trace(req.body);
 			ctx.body = "body";
 		})
 		.get("/image/full/:id", function(ctx:Context, next){
 			var ctx2:KoaRouterContext = cast ctx;
-			var seq = new lib.Sequelize("", "", "", { dialect:'sqlite', storage:'C:\\personal\\dev\\repo\\Rialto\\Rialto\\bin\\Debug\\imgdb.db' });
 			var request = new api.ApiRequest(None, new Map<String, String>(), ["id" => ctx2.params.id]);
-
 			return runApi(new GetImageFullApi(seq), request, ctx);
 		})
 		.get("/image/thumbnail/:id", function(ctx:Context, next){
@@ -75,8 +69,11 @@ class Main {
 				});
 			case None:
 				return new Promise(function(resolve:Dynamic->Void, reject) {
-					// TODO response body
-					ctx.body = "bad param";
+					// TODO apiごとのカスタムメッセージ
+					var response = {
+						"message": "bad param"
+					};
+					ctx.body = Json.stringify(response);
 					ctx.status = 400;
 					resolve(null);
 				});
