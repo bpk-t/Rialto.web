@@ -1,0 +1,6 @@
+-cp src
+-lib hxgnd:git:https://github.com/DenkiYagi/hxgnd.git
+-lib vuehx:git:https://github.com/DenkiYagi/vuehx.git
+
+-main Main
+-js html/js/main.js
